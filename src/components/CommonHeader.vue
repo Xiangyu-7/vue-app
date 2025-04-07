@@ -1,9 +1,6 @@
 <template>
    <div class = 'header'>
        <div class = 'l-content'>
-          <el-button size = "small">
-              <component class="icons" :is="menu"></component>
-          </el-button>
           <el-breadcrumb separator="/" class="bread">
               <el-breadcrumb-item :to = "{ path: '/' }">首页</el-breadcrumb-item>
           </el-breadcrumb>
@@ -14,7 +11,7 @@
                   <img :src = "getImageUrl('user')" class="user"/>
               </span>
               <template #dropdown>
-                  <el-dropdown-menu> 
+                  <el-dropdown-menu>  
                     <el-dropdown-item>个人中心</el-dropdown-item>
                     <el-dropdown-item>退出登录</el-dropdown-item>
                     

@@ -1,0 +1,2 @@
+assetsPublicPath:'/'//false
+assetsPublicPath:'./'//true

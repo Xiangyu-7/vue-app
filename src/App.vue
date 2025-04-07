@@ -1,18 +1,12 @@
 <template>
-  
-
-    
+   
   <router-view ></router-view>
  
-   
- 
- </template>
- 
+</template>
  
  <script  lang="ts" setup>
  
  </script>
- 
  
  <style scoped> 
   .app {

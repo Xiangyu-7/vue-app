@@ -31,7 +31,7 @@
         <el-card shadow="hover" class="user-table">
             <div class="table-container">
                 <h3>电化学储能 </h3>
-            <el-form :inline="true" :model="formInline" label-width="160px" class="demo-form-inline">
+            <el-form :inline="true" :model="formstorage" label-width="160px" class="demo-form-inline">
               <!-- 充电效率 -->
               <el-form-item label="充电效率">
                 <el-input
@@ -64,8 +64,8 @@
                 />
               </el-form-item>
 
-              <!-- 额定功率 -->
-              <el-form-item label="C-rate">
+              <!-- 充放电倍率 -->
+              <el-form-item label="充放电倍率">
                 <el-input
                   v-model="formstorage.rate"
                   clearable
@@ -77,7 +77,7 @@
         <el-card shadow="hover" class="user-table" style="margin-top: 20px;">
           <div class="table-container">
                   <h3>储氢罐 </h3>
-              <el-form :inline="true" :model="formInline" label-width="160px" class="demo-form-inline">
+              <el-form :inline="true" :model="formtank" label-width="160px" class="demo-form-inline">
                 <el-form-item label="几何容积(m3)">
                   <el-input
                     v-model="formtank.volume"
@@ -92,7 +92,7 @@
                 </el-form-item>
                 <el-form-item label="最低工作压力(MPa)">
                   <el-input
-                    v-model="formtank.maxpressure"
+                    v-model="formtank.minpressure"
                     clearable
                   />
                 </el-form-item>
@@ -115,7 +115,7 @@
         <el-card shadow="hover" class="user-table" style="margin-top: 20px;">
           <div class="table-container">
                   <h3>制氢系统 </h3>
-              <el-form :inline="true" :model="formInline" label-width="160px" class="demo-form-inline">
+              <el-form :inline="true" :model="formHydrogenSystem" label-width="160px" class="demo-form-inline">
                 <el-form-item label="辅机负荷系数">
                   <el-input
                     v-model="formHydrogenSystem.auxiliaryLoadFactor"
@@ -234,8 +234,8 @@ const images = reactive([
     settingsSchema: [
       { key: 'minCapacity', label: '最小个数', type: 'text' ,num:'0'},
       { key: 'maxCapacity', label: '最大个数', type: 'text' ,num:'10'},
-      { key: 'investmentCost', label: '投资成本(/个)', type: 'text' ,num:'1500'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'70.5'},
+      { key: 'investmentCost', label: '投资成本(/个)', type: 'text' ,num:'4000000'},
+      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'0'},
       { key: 'lifespan', label: '使用寿命(年)', type: 'text' ,num:'20'}
     ]
   },
@@ -295,22 +295,39 @@ const extractNumValues = () => {
 };
 
 // 调用函数并打印结果
-const numValues = extractNumValues();
+const numValues = ref(extractNumValues());
 // 监听 currentImage.settingsSchema 的变化
 watch(
   () => currentImage.value.settingsSchema,
   () => {
-    const numValues = extractNumValues();
-    console.log(numValues);
+    numValues.value= extractNumValues();
+    console.log(numValues.value);
+    submitData(numValues.value);
+
   },
   { deep: true } // 深度监听，确保监听对象内部的变化
 );
+
+//提交数据 
+const submitData = async() => {
+  try {
+    console.log("Sending numValues:", numValues.value); // 确保这是最新的数据
+    const response = await axios.post('http://127.0.0.1:8080/calculate', {
+      numValues: numValues.value
+    }); 
+    console.log(response);
+  } catch (error) {
+    console.error('请求失败:', error);
+    alert('请求失败，请检查网络连接');
+  }
+};
+
 const formstorage = ref({
   chargeEfficiency: '0.9', // 充电效率
   dischargeEfficiency: '0.9', // 放电效率
   minSOC: '20', // 最小荷电状态
   maxSOC: '100', // 最大荷电状态
-  rate: '0.5C' // 额定功率
+  rate: '0.5' // 额定功率
 });
 const formtank = ref({
   volume:'2000',
@@ -390,6 +407,5 @@ ElectricityPerNm3: '5', // 每标方氢理论用电量（kWh）
 .settings-content {
   padding: 20px;
 }
-
 
 </style>

@@ -35,9 +35,7 @@
             :index = "item.path"
             :key = "item.path"
             @click="handleMenu(item)"
-        >
-
-                            
+        >           
           <component class = 'icons':is="item.icon" ></component>
             <span>{{item.label}}</span>
 

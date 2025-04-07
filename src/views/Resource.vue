@@ -39,12 +39,10 @@
             <el-col :span="10">
                 <EChartsCurve
                 title="风电出力标幺值"
-                :xAxisData="hours"
                 :seriesData="windData"
                 />
                 <EChartsCurve
                 title="光伏出力标幺值"
-                :xAxisData="hours"
                 :seriesData="solarData"
                 />
             </el-col>
@@ -94,8 +92,9 @@
     </el-container>
   </template>
   
-  <script setup>
-  import { ref } from 'vue';
+<script setup>
+  import { ref ,onMounted} from 'vue';
+  import axios from 'axios';
   import EChartsCurve from '@/components/EChartsCurve.vue';
   import TimeOfUseChart from '@/components/TimeOfUseChart.vue';
   const provinces = [
@@ -108,7 +107,6 @@
   const windData = ref([]);
   const solarData = ref([]);
   const priceData = ref([]);
-  // const hours = Array.from({ length: 24 }, (_, i) => `${i}小时`);
   const provinceDetails = ref({
     location: '',
     description: '',
@@ -116,35 +114,41 @@
   });
   const tableData = ref([]);
   
-  const fetchData = () => {
-    // 模拟数据获取
-    windData.value = Array.from({ length: 24 }, () => Math.random() * 10);
-    solarData.value = Array.from({ length: 24 }, () => Math.random() * 10);
-    priceData.value = Array.from({ length: 24 }, () => Math.random() * 5);
-  
-    // 模拟省份详细信息
-    provinceDetails.value = {
-      location: '',
-      description: '',
-    };
-  
-    // 模拟表格数据
-    tableData.value = [
-      { name: '年平均温度', value: '' },
-      { name: '年平均风速', value: '' },
-      { name: '水平面年总辐照度', value: '' },
-      { name: '年均光照时长', value: '' },
-    ];
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/factor');
+      // 模拟数据获取
+      windData.value = response.data.wind_factor;
+      solarData.value = response.data.solar_factor;
+      console.log(response.data.wind_factor);
+      
+      // 模拟省份详细信息
+      provinceDetails.value = {
+        location: '',
+        description: '',
+      };
+    
+      // 模拟表格数据
+      tableData.value = [
+        { name: '年平均温度', value: '' },
+        { name: '年平均风速', value: '' },
+        { name: '水平面年总辐照度', value: '' },
+        { name: '年均光照时长', value: '' },
+      ];
+      } catch (error) {
+      console.log(error);
+      alert('获取数据失败');
+    }
   };
   const flatRate = ref(0.5); // 默认平段电价
-const valleyRate = ref(0.3); // 默认谷段电价
-const peakRate = ref(0.7); // 默认高峰电价
-
-const hours = ref(
+  const valleyRate = ref(0.3); // 默认谷段电价
+  const peakRate = ref(0.7); // 默认高峰电价
+  const hours = ref(
   Array.from({ length: 24 }, () => 'flat') // 默认每小时都是平段
   );
-  </script>
-  
+
+</script>
+
 <style scoped>
   .resource-config-container {
     height: 100%;
