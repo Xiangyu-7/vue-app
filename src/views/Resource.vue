@@ -120,7 +120,6 @@
       // 模拟数据获取
       windData.value = response.data.wind_factor;
       solarData.value = response.data.solar_factor;
-      console.log(response.data.wind_factor);
       
       // 模拟省份详细信息
       provinceDetails.value = {
