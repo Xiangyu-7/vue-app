@@ -49,7 +49,7 @@
               </el-form-item>
 
               <!-- 最小荷电状态 -->
-              <el-form-item label="最小荷电状态">
+              <el-form-item label="最小SOC">
                 <el-input
                   v-model="formstorage.minSOC"
                   clearable
@@ -57,7 +57,7 @@
               </el-form-item>
 
               <!-- 最大荷电状态 -->
-              <el-form-item label="最大荷电状态">
+              <el-form-item label="最大SOC">
                 <el-input
                   v-model="formstorage.maxSOC"
                   clearable
@@ -125,6 +125,12 @@
                 <el-form-item label="每标方氢用电量(kw·h)">
                   <el-input
                     v-model="formHydrogenSystem.ElectricityPerNm3"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="逐时用氢量(Nm3/h)">
+                  <el-input
+                    v-model="formHydrogenSystem.HourlyHydrogenUse"
                     clearable
                   />
                 </el-form-item>
@@ -325,8 +331,8 @@ const submitData = async() => {
 const formstorage = ref({
   chargeEfficiency: '0.9', // 充电效率
   dischargeEfficiency: '0.9', // 放电效率
-  minSOC: '20', // 最小荷电状态
-  maxSOC: '100', // 最大荷电状态
+  minSOC: '0.2', // 最小荷电状态
+  maxSOC: '1', // 最大荷电状态
   rate: '0.5' // 额定功率
 });
 const formtank = ref({
@@ -339,6 +345,7 @@ const formtank = ref({
 const formHydrogenSystem = ref({
 auxiliaryLoadFactor: '1', // 辅机负荷系数
 ElectricityPerNm3: '5', // 每标方氢理论用电量（kWh）
+HourlyHydrogenUse: '4200', // 1小时用氢量（Nm3）
 });
 </script>
 

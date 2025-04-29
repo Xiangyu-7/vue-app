@@ -74,6 +74,7 @@
           <el-form-item label="高峰电价:">
             <el-input-number v-model="peakRate" :step="0.01" />
           </el-form-item>
+          <el-button type="primary" style="margin-left: 130px;" @click="savePrices ">保存设置</el-button>
         </el-form>
           </el-col>
           <el-col :span="20">
@@ -143,9 +144,43 @@
   const valleyRate = ref(0.3); // 默认谷段电价
   const peakRate = ref(0.7); // 默认高峰电价
   const hours = ref(
-  Array.from({ length: 24 }, () => 'flat') // 默认每小时都是平段
-  );
-
+  Array.from({ length: 24 },(_, index) => {
+        // 根据时间段设置电价类型
+        if ((index >= 6 && index <= 8) || (index >= 18 && index <= 22)) {
+          return 'peak'; // 6-8 和 18-22 为高峰
+        } else if ((index >= 0 && index <= 4) || (index >= 11 && index <= 16)) {
+          return 'valley'; // 0-4 和 11-16 为谷段
+        } else {
+          return 'flat'; // 其余时间为平段
+        }
+      })
+    );
+  const savePrices = () => {
+    // 构造发送到后端的数据
+    const priceData = hours.value.map((type, index) => {
+      switch (type) {
+        case 'flat':
+          return flatRate.value;
+        case 'valley':
+          return valleyRate.value;
+        case 'peak':
+          return peakRate.value;
+        default:
+          return 0; // 默认值，防止错误
+      }
+    });
+    console.log(priceData);
+    // // 发送数据到后端
+    // axios.post('http://localhost:8080/save-prices', { prices: priceData })
+    //   .then(response => {
+    //     alert('电价设置已成功保存！');
+    //     console.log(response.data);
+    //   })
+    //   .catch(error => {
+    //     alert('保存失败，请稍后再试。');
+    //     console.error(error);
+    //   });
+  };
 </script>
 
 <style scoped>

@@ -1,7 +1,5 @@
 <template>
   <el-container>
-
-
     <el-main>
       <!-- 使用 el-row 和 el-col 布局 -->
       <el-row :gutter="20">
@@ -12,8 +10,8 @@
             <h2>选择优化目标</h2>
             <el-checkbox-group v-model="form.targetFunctions">
               <el-checkbox value="LCOH" label="LCOH">LCOH</el-checkbox>
-              <el-checkbox value="风光消纳率" label="风光消纳率">风光消纳率</el-checkbox>
-              <el-checkbox value="产氢量" label="产氢量">产氢量</el-checkbox>
+              <el-checkbox value="consumption" label="风光消纳率">风光消纳率</el-checkbox>
+              <el-checkbox value="Hproduction" label="产氢量">产氢量</el-checkbox>
             </el-checkbox-group>
           </el-card>
 
@@ -21,20 +19,21 @@
           <el-card class="form-card">
             <h2>选择优化算法</h2>
             <el-radio-group v-model="form.optimizationAlgorithm">
-          <el-radio value="geneticAlgorithm">遗传算法</el-radio>
-          <el-radio value="enumeration">枚举法</el-radio>
-        </el-radio-group>
+              <el-radio value="enumeration">枚举法</el-radio>
+              <el-radio value="geneticAlgorithm">遗传算法</el-radio>
+            </el-radio-group>
           </el-card>
 
           <!-- 遗传算法参数设置 -->
           <el-card class="form-card" v-if="form.optimizationAlgorithm === 'geneticAlgorithm'">
             <h2>遗传算法参数设置</h2>
             <el-form :model="form" label-width="120px">
-              <el-form-item label="迭代次数">
-                <el-input-number v-model="form.iterationCount" :min="1" :max="1000" />
-              </el-form-item>
-              <el-form-item label="种群大小">
-                <el-input-number v-model="form.populationSize" :min="1" :max="1000" />
+              <el-form-item v-for="item in GAparams" :key="item.label" :label="item.label">
+                <el-input-number 
+                v-model="item.num" 
+                :min="0" 
+                :step="item.key === 'crossoverRate' || item.key === 'mutationRate' ? 0.1 : 1" 
+                class="GA-input"/>
               </el-form-item>
             </el-form>
           </el-card>
@@ -75,13 +74,10 @@
                 </el-tag>
               </el-descriptions-item>
               <el-descriptions-item label="优化算法">{{ form.optimizationAlgorithm }}</el-descriptions-item>
-              <el-descriptions-item label="迭代次数" v-if="form.optimizationAlgorithm === 'geneticAlgorithm'">
-                {{ form.iterationCount }}
+              <el-descriptions-item v-for = "item in GAparams"  :label="item.label" 
+              v-if="form.optimizationAlgorithm === 'geneticAlgorithm'">
+                {{ item.num }}
               </el-descriptions-item>
-              <el-descriptions-item label="种群大小" v-if="form.optimizationAlgorithm === 'geneticAlgorithm'">
-                {{ form.populationSize }}
-              </el-descriptions-item>
-
               <el-descriptions-item label="计算开始时间">
                 {{ startTime ? formatDateTime(startTime) : '未开始' }}
               </el-descriptions-item>
@@ -91,8 +87,10 @@
               <el-descriptions-item label="计算结果">{{ result || '未完成' }}</el-descriptions-item>
             </el-descriptions>
 
-
           </el-card>
+            <div>   
+              <line-chart :name ="form.targetFunctions" title="迭代曲线" :x-axis-data="xAxisData" :series-data="LCOHData" />
+            </div>
         </el-col>
       </el-row>
     </el-main>
@@ -103,14 +101,12 @@
 import { ref, onMounted, reactive ,watch} from 'vue';
 import * as echarts from 'echarts';
 import axios from 'axios';
-// import { watch } from 'less';
+import LineChart from '@/components/LineChart.vue';
 
 // 表单数据
 const form = ref({
   targetFunctions: [], // 优化目标（多选）
-  optimizationAlgorithm: '', // 优化算法
-  iterationCount: 50, // 迭代次数
-  populationSize: 10, // 种群大小
+  optimizationAlgorithm: 'enumeration', // 优化算法
 });
 
 // 计算结果
@@ -139,9 +135,19 @@ const startCalculation = async () => {
   startTime.value = new Date();
   isCalculating.value = true;
   progress.value = 0;
-  const response = await axios.get('http://localhost:8080/enumerate');
-  console.log(response.data);
-  
+  //const response = await axios.get('http://localhost:8080/enumerate');
+
+  if (form.value.optimizationAlgorithm === 'geneticAlgorithm' ){
+    const params = {
+      targetFunctions: form.value.targetFunctions,
+    }
+    console.log(params);
+    const response = await axios.post('http://localhost:8080/handle_ga_request',params)
+    console.log(response.data);
+  } else {
+    const response = await axios.get('http://localhost:8080/enumerate');
+    console.log(response.data);
+  }
 }
 const updateProgress = async () => {
 
@@ -179,8 +185,15 @@ const enumerationParams = ref([
   { key: 'step4',label: '电解槽', num:5  },
   { key: 'step5',label: '储氢罐', num:1  }
 ]);
-const steps = ref({});
 
+const GAparams = ref([
+  {key:'iterationCount', label: '迭代次数', num: 50}, // 迭代次数
+  {key:'populationSize', label: '种群大小', num: 20}, // 种群大小
+  {key:'crossoverRate', label: '交叉概率', num: 0.8}, // 交叉概率
+  {key:'mutationRate', label: '变异概率', num: 0.1}, // 变异概率
+  ]);
+const steps = ref({});
+const GA = ref(null);
 const extractSteps = () => {
   const newSteps = {};
   enumerationParams.value.forEach(item => {
@@ -188,11 +201,18 @@ const extractSteps = () => {
   });
   return newSteps;
 };
-
+const extractGA = () => {
+  const newGA = {};
+  GAparams.value.forEach(item => {
+    newGA[item.key] = item.num;
+  });
+  return newGA;
+};
 watch(
   () => enumerationParams.value, // 监听整个数组
   () => {
     steps.value = extractSteps();
+    GA.value = extractGA();
     setsteps();
   },
   { deep: true } // 深度监听数组的变化
@@ -206,6 +226,25 @@ const setsteps = async() => {
     alert("设置参数失败，请检查输入参数是否正确！");
   }
 };
+const setGA = async() => {
+  try {
+    const response = await axios.post('http://localhost:8080/setGA', { GA: GA.value });
+    console.log(response.data);
+  } catch (error) {
+    console.error("设置参数失败:", error);
+    alert("设置参数失败，请检查输入参数是否正确！");
+  }
+};
+watch(
+  () => GAparams.value, // 监听整个数组
+  () => {
+    steps.value = extractGA();
+    GA.value = extractGA();
+    setGA();
+  },
+  { deep: true } // 深度监听数组的变化
+);
+
 </script>
 
 <style scoped>

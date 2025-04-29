@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import * as echarts from 'echarts';
 
 const props = defineProps({
@@ -14,9 +14,15 @@ const props = defineProps({
 });
 
 const chartRef = ref(null);
+let myChart = null; // 用于存储图表实例
 
+// 初始化图表
 const initChart = () => {
-  const myChart = echarts.init(chartRef.value);
+  if (myChart) {
+    myChart.dispose(); // 如果已经存在图表实例，先销毁
+  }
+  myChart = echarts.init(chartRef.value); // 初始化图表实例
+
   const option = {
     title: {
       text: '分时电价柱状图',
@@ -69,13 +75,16 @@ const initChart = () => {
       },
     ],
   };
-  myChart.setOption(option);
+
+  myChart.setOption(option); // 设置图表配置
 };
 
+// 在组件挂载时初始化图表
 onMounted(() => {
   initChart();
 });
 
+// 监听 props 变化，重新渲染图表
 watch(
   () => [props.flatRate, props.valleyRate, props.peakRate, props.hours],
   () => {
@@ -83,4 +92,11 @@ watch(
   },
   { deep: true }
 );
+
+// 在组件卸载时销毁图表实例
+onUnmounted(() => {
+  if (myChart) {
+    myChart.dispose();
+  }
+});
 </script>

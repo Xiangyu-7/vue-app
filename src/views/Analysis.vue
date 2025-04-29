@@ -30,37 +30,61 @@
          
           <el-col :span="24">
             <el-card>
-              <h3>典型日的分时出力情况</h3>
-              <div ref="chart" style="width: 100%; height: 400px;"></div>
+              <h1>典型日分时出力情况</h1>
+              <StackedBarLineChart :chartData="chartData" v-if="chartData && typeof chartData === 'object'"/>
             </el-card>
+            <div>   
+              <line-chart name ="LCOH(元/kg)" title="各方案LCOH对比" :x-axis-data="xAxisData" :series-data="LCOHData" />
+            </div>
+            <div>
+              <line-chart name ="消纳率(%)" title="各方案风光消纳率对比" :x-axis-data="xAxisData" :series-data="consumptiondata" />
+            </div>
+            <div>
+              <line-chart name ="产氢量(万吨)" title="各方案产氢量对比" :x-axis-data="xAxisData" :series-data="Hproductiondata" />
+            </div>
           </el-col>
         </el-row>
+
       </el-main>
     </el-container>
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import * as echarts from 'echarts';
-import axios from 'axios';
-import { de } from 'element-plus/es/locales.mjs';
-  
+  import axios from 'axios';
+  import { de } from 'element-plus/es/locales.mjs';
+  import LineChart from '@/components/LineChart.vue';
+  import StackedBarLineChart from '@/components/StackedBarLineChart.vue';
+
   // 方案数据
   const schemes = ref([]);
   const SchemeDetails = [];
   const SchemeDetails1 = ref([]);
+  const chart = ref(null);
+  const chartData = ref(null);
   // 选中的方案详细结果
   const selectedSchemeDetails = ref([]);
-  
+  const xAxisData = ref([]);
+  const LCOHData = ref([]);
+  const consumptiondata = ref([]);
+  const Hproductiondata = ref([]);
   // ECharts 实例
-  let chart = null; // 改为普通变量
+  // let chart = null; // 改为普通变量
   const chartDom = ref(null); // chartDom 仍然是 ref
   
   // 处理行点击事件
-  const handleRowClick = (row) => {
+  const handleRowClick = async (row) => {
+    const schemedata = [row.windPower, row.solarPower, row.storage, row.electrolyzer, row.hydrogenTanks]
     SchemeDetails1.value = getSchemeDetails(row.scheme);
     selectedSchemeDetails.value = getSchemeDetails(row.scheme);
     // renderChart(row.scheme);
+      try {
+      const response = await axios.post('http://localhost:8080/chart_data',schemedata); // 假设后端接口返回数据
+      chartData.value = response.data;
+    } catch (error) {
+      console.error('Error fetching chart data:', error);
+    }
   };
   
   // 模拟获取详细结果数据
@@ -102,20 +126,28 @@ const fetchSchemes = async () => {
 
   try {
     const response = await axios.get('http://localhost:8080/schemes')
+    const response1 = await axios.get('http://localhost:8080/linechart')
     const result = await response.data.schemes
     const details = await response.data.details
     schemes.value = result.data || result
     SchemeDetails.value = details.data || details
+    xAxisData.value = response1.data.schemes
+    LCOHData.value = response1.data.LCOH
+    consumptiondata.value = response1.data.consumption
+    Hproductiondata.value = response1.data.Hproduction
   } catch (error) {
     console.error('Error fetching data:', error)
   }
 }
 
-// 页面挂载时获取数据
+
+
 onMounted(() => {
   fetchSchemes()
 })
-  </script>
+
+
+</script>
   
 <style scoped>
   
