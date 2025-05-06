@@ -12,7 +12,7 @@
   - 产氢量最大化  
 - **可视化配置**  
   - 风机/光伏/储能容量参数交互式调节  
-  - 地理气象数据动态加载（如NASA风速/辐照度）  
+  - 地理气象数据动态加载 
 - **结果展示**
   - 系统典型日出力情况
   - 优化过程收敛曲线  
@@ -38,7 +38,23 @@ cd frontend && npm install
 julia --project=backend -e 'using Pkg; Pkg.instantiate()'
 ```
 ### 2. 数据库配置
-MySQL
+```bash
+# MySQL
+CREATE DATABASE IF NOT EXISTS newenergy;
+use newenergy;
+create table  if not exists non_dominated_solutions(
+	wind int,
+	pv int,
+	storage int, 
+	electrolyzer int,
+	tank int,
+	consumption float,
+	LCOH float,
+	Hproduction float,
+	Front int 
+);
+...
+```
 ### 3. 运行开发模式
 ```bash
 # 前端开发服务器
