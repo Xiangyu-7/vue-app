@@ -61,7 +61,7 @@ create table  if not exists non_dominated_solutions(
 npm run dev
 
 # 启动Julia后端
-  julia -- Mainserver.jl
+julia -- Mainserver.jl
 ```
 ## 📜 计算演示
 ![2025-04-28T10_04_25 624Z-787771](https://github.com/user-attachments/assets/99ce4e9c-686b-4e69-8662-83d95fefd07e)
