@@ -7,7 +7,7 @@ import { ref, onMounted,watch } from 'vue';
 import * as echarts from 'echarts';
 
 const props = defineProps({
-  name: String,
+  name: [String, Number, Array],
   title: String,
   xAxisData: {
     type: Array,
@@ -36,6 +36,7 @@ const updateChart = () => {
       left: 'center',
     },
     xAxis: {
+      name: '迭代次数',
       type: 'category',
       data: props.xAxisData,
     },
@@ -44,6 +45,11 @@ const updateChart = () => {
       type: 'value',
       min: 'dataMin', // 自动调整最小值
       max: 'dataMax', // 自动调整最大值
+      axisLabel: {
+      formatter: function(value) {
+        return value.toFixed(2); // y轴标签保留两位小数
+      }
+    }
     },
     tooltip: {
       trigger: 'item', // 鼠标悬停在数据点上触发

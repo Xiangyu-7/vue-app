@@ -30,7 +30,7 @@
          
           <el-col :span="24">
             <el-card>
-              <h1>典型日分时出力情况</h1>
+              <h1>{{ selectedScheme }}典型日分时出力情况</h1>
               <StackedBarLineChart :chartData="chartData" v-if="chartData && typeof chartData === 'object'"/>
             </el-card>
             <div>   
@@ -69,6 +69,7 @@
   const LCOHData = ref([]);
   const consumptiondata = ref([]);
   const Hproductiondata = ref([]);
+  const selectedScheme = ref(null);
   // ECharts 实例
   // let chart = null; // 改为普通变量
   const chartDom = ref(null); // chartDom 仍然是 ref
@@ -78,9 +79,10 @@
     const schemedata = [row.windPower, row.solarPower, row.storage, row.electrolyzer, row.hydrogenTanks]
     SchemeDetails1.value = getSchemeDetails(row.scheme);
     selectedSchemeDetails.value = getSchemeDetails(row.scheme);
+    selectedScheme.value = row.scheme;
     // renderChart(row.scheme);
       try {
-      const response = await axios.post('http://localhost:8080/chart_data',schemedata); // 假设后端接口返回数据
+      const response = await axios.post('http://localhost:8080/chart_data',schemedata); // 后端接口返回数据
       chartData.value = response.data;
     } catch (error) {
       console.error('Error fetching chart data:', error);

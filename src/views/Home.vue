@@ -146,7 +146,7 @@
   <div class="settings-panel" :class="{ active: isSettingsOpen }">
     <div class="settings-content">
       <h3>设置参数 - {{ currentImage.label }}</h3>
-      <el-form label-width="120px">
+      <el-form label-width="150px">
         <el-form-item
           v-for="setting in currentImage.settingsSchema"
           :key="setting.key"
@@ -196,8 +196,8 @@ const images = reactive([
     settingsSchema: [
       { key: 'minCapacity', label: '最小容量(MW)', type: 'text' ,num:'70'},
       { key: 'maxCapacity', label: '最大容量(MW)', type: 'text' ,num:'130'},
-      { key: 'investmentCost', label: '投资成本(/KW)', type: 'text' ,num:'3600'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'98.8'},
+      { key: 'investmentCost', label: '投资成本(元/KW)', type: 'text' ,num:'3600'},
+      { key: 'maintenanceCost', label: '运维成本(元/KW)', type: 'text' ,num:'98.8'},
       { key: 'lifespan', label: '使用寿命', type: 'text',num:'20' }
     ]
   },
@@ -207,8 +207,8 @@ const images = reactive([
     settingsSchema: [
       { key: 'minCapacity', label: '最小容量(MW)', type: 'text' ,num:'0'},
       { key: 'maxCapacity', label: '最大容量(MW)', type: 'text' ,num:'0'},
-      { key: 'investmentCost', label: '投资成本(/KW)', type: 'text' ,num:'2800'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'62.2'},
+      { key: 'investmentCost', label: '投资成本(元/KW)', type: 'text' ,num:'2800'},
+      { key: 'maintenanceCost', label: '运维成本(元/KW)', type: 'text' ,num:'62.2'},
       { key: 'lifespan', label: '使用寿命(年)', type: 'text' ,num:'20'}
     ]
   },
@@ -216,10 +216,10 @@ const images = reactive([
     name: 'storage',
     label: '储能系统',
     settingsSchema: [
-      { key: 'minCapacity', label: '最小容量(MW)', type: 'text' ,num:'0'},
-      { key: 'maxCapacity', label: '最大容量(MW)', type: 'text',num:'50' },
-      { key: 'investmentCost', label: '投资成本(/KW)', type: 'text' ,num:'850'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'21.25'},
+      { key: 'minCapacity', label: '最小容量(MW·h)', type: 'text' ,num:'0'},
+      { key: 'maxCapacity', label: '最大容量(MW·h)', type: 'text',num:'50' },
+      { key: 'investmentCost', label: '投资成本(元/KW·h)', type: 'text' ,num:'850'},
+      { key: 'maintenanceCost', label: '运维成本(元/KW·h)', type: 'text' ,num:'21.25'},
       { key: 'lifespan', label: '使用寿命(年)', type: 'text',num:'20'}
     ]
   },
@@ -229,8 +229,8 @@ const images = reactive([
     settingsSchema: [
       { key: 'minCapacity', label: '最小容量(MW)', type: 'text' ,num:'55'},
       { key: 'maxCapacity', label: '最大容量(MW)', type: 'text' ,num:'130'},
-      { key: 'investmentCost', label: '投资成本(/KW)', type: 'text' ,num:'1500'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'70.5'},
+      { key: 'investmentCost', label: '投资成本(元/KW)', type: 'text' ,num:'1500'},
+      { key: 'maintenanceCost', label: '运维成本(元/KW)', type: 'text' ,num:'70.5'},
       { key: 'lifespan', label: '使用寿命(年)', type: 'text' ,num:'20'}
     ]
   },
@@ -240,8 +240,8 @@ const images = reactive([
     settingsSchema: [
       { key: 'minCapacity', label: '最小个数', type: 'text' ,num:'0'},
       { key: 'maxCapacity', label: '最大个数', type: 'text' ,num:'10'},
-      { key: 'investmentCost', label: '投资成本(/个)', type: 'text' ,num:'4000000'},
-      { key: 'maintenanceCost', label: '运维成本(/KW)', type: 'text' ,num:'0'},
+      { key: 'investmentCost', label: '投资成本(元/个)', type: 'text' ,num:'4000000'},
+      { key: 'maintenanceCost', label: '运维成本(元/KW)', type: 'text' ,num:'0'},
       { key: 'lifespan', label: '使用寿命(年)', type: 'text' ,num:'20'}
     ]
   },
@@ -398,7 +398,7 @@ HourlyHydrogenUse: '4200', // 1小时用氢量（Nm3）
   position: fixed;
   top: 0;
   right: -100%; /* 默认隐藏在右侧 */
-  width: 350px;
+  width: 400px;
   height: 100%;
   background: #fff;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);

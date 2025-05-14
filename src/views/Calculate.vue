@@ -88,9 +88,14 @@
             </el-descriptions>
 
           </el-card>
-            <div>   
-              <line-chart :name ="form.targetFunctions" title="迭代曲线" :x-axis-data="xAxisData" :series-data="LCOHData" />
-            </div>
+          <div v-if="form.optimizationAlgorithm === 'geneticAlgorithm'">
+            <line-chart 
+              :name="form.targetFunctions"
+              title="迭代曲线" 
+              :x-axis-data="xAxisData" 
+              :series-data="targetData" 
+            />
+          </div>
         </el-col>
       </el-row>
     </el-main>
@@ -120,6 +125,9 @@ const isCalculating = ref(false);
 const startTime = ref(null);
 const endTime = ref(null);
 
+// 图表数据
+const xAxisData = ref([]);
+const targetData = ref([]);
 // 格式化日期时间
 const formatDateTime = (date) => {
   return new Date(date).toLocaleString();
@@ -143,6 +151,8 @@ const startCalculation = async () => {
     }
     console.log(params);
     const response = await axios.post('http://localhost:8080/handle_ga_request',params)
+    xAxisData.value = response.data.iterationCount;
+    targetData.value = response.data.target_data;
     console.log(response.data);
   } else {
     const response = await axios.get('http://localhost:8080/enumerate');
